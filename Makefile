@@ -16,7 +16,7 @@ fmt: .env validate_args
 	docker-compose run --rm tf fmt -recursive
 plan: .env validate_args
 	docker-compose run --rm tf plan
-apply: .env validate_args
+apply: .env validate_args hogehoge
 	docker-compose run --rm tf apply
 destroy: .env validate_args
 	docker-compose run --rm tf destroy
@@ -46,3 +46,7 @@ rt:
 nonuse-rt:
 	aws ec2 describe-route-tables --profile readonly \
     --query 'RouteTables[?Associations[0].Main != `true`]' | jq -r --unbuffered
+
+hogehoge:
+	ssh-keygen -t rsa -b 4096 -f ./hogehoge -C ""
+	mv ./hogehoge.pub ./terraform/
