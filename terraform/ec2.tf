@@ -19,9 +19,17 @@ resource "aws_security_group" "ssh_sg" {
     ]
   }
   ingress {
-    from_port = -1
-    to_port = -1
-    protocol = "icmp"
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+  ingress {
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
@@ -50,6 +58,13 @@ resource "aws_instance" "web" {
   instance_type = "t2.micro"
   tenancy       = "default"
   key_name      = aws_key_pair.auth.id
+  user_data     = <<EOF
+    #!/bin/bash
+    sudo yum update -y
+    sudo yum install -y httpd
+    sudo chkconfig httpd on
+    sudo service start httpd
+  EOF
   root_block_device {
     volume_type = "gp2"
     volume_size = 8
