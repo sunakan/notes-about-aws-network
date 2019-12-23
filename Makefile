@@ -1,4 +1,5 @@
 export ENTRYPOINT=terraform
+export WORKING_DIR=./
 validate_args:
 	if [ -z ${WORKING_DIR} ]; then echo "required WORKING_DIR"; exit 1; fi
 .env:
@@ -31,3 +32,17 @@ build:
 	bash ./cicd/build-pagesearch-solr.sh | tail -1
 push: login
 	bash ./cicd/build-pagesearch-solr.sh | tail -1 | bash ./cicd/push-pagesearch-solr-to-ecr.sh
+
+configure:
+	aws configure --profile readonly
+aws-v:
+	aws --version
+vpc:
+	aws ec2 describe-vpcs --profile readonly | jq -r --unbuffered
+rt:
+	aws ec2 describe-route-tables --profile readonly \
+    | jq -r --unbuffered \
+      '.RouteTables | map({ rtbid: .RouteTableId, vpcid: .VpcId, tags: .Tags, routes: .Routes })'
+nonuse-rt:
+	aws ec2 describe-route-tables --profile readonly \
+    --query 'RouteTables[?Associations[0].Main != `true`]' | jq -r --unbuffered
